@@ -1,0 +1,138 @@
+<html>
+<head>
+   <title>SUPLIER</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+   <!-- Show Modal -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    {% extends 'publik/layout.html' %}
+
+    {% block title %}Barang{% endblock %}
+
+{% block content %}
+<h2>LIST SUPLIER</h2>
+
+   <div class="container">
+   <table width="10px" class="table table-bordered table-hover">
+      <thead>
+      <tr>
+          <th>ID Suplier</th>
+          <th>Nama Suplier</th>
+          <th>No Telp</th>
+          <th>Alamat</th>
+          <th width="10%" colspan="2">Aksi</th>
+      </tr>
+      </thead>
+          <tbody>
+            {% for row in container %}
+            <tr>
+               <td>{{ row.0 }}</td>
+               <td>{{ row.1 }}</td>
+               <td>{{ row.2 }}</td>
+               <td>{{ row.3 }}</td>
+               <td><button type="button" class="btn btn-warning" data-toggle="modal" role="button" data-target="#editSuplier{{ row.0 }}">Edit</button></td>
+               <td><a href="/hapus-suplier/{{row[0]}}" class="btn btn-danger" role="button">Hapus</a></td>
+            </tr>
+
+            <!-- MODAL EDIT DATA -->
+            <div class="container">
+                <!-- Modal -->
+                <div class="modal fade" id="editSuplier{{ row.0 }}" role="dialog">
+                  <div class="modal-dialog">
+                  
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="container">
+                            <div class="col-sm-5">
+                            <h2>Ubah Data Suplier</h2>
+                               <form action="{{ url_for('edit_suplier') }}" method="post">
+                                  <div class="form-group">
+                                     <input type="hidden" name="id_suplier"  value="{{row[0]}}" class="form-control" />
+                                  </div>
+                                  <div class="form-group">
+                                     <label>Nama Suplier:</label>
+                                     <input type="text" name="nama"  value="{{row[1]}}" class="form-control" placeholder="Masukan nama barang" required />
+                                  </div>
+                                  <div class="form-group">
+                                    <label>No Tlp:</label>
+                                    <input type="text" name="no_tlp"  value="{{row[2]}}" class="form-control" placeholder="Masukan nama barang" />
+                                 </div>
+                                 <div class="form-group">
+                                  <label>Alamat:</label>
+                                  <!-- <textarea type="text" name="alamat"  value="{{row[3]}}" class="form-control" placeholder="Masukan Alamat"></textarea> -->
+                                  <input type="text" name="alamat"  value="{{row[3]}}" class="form-control" placeholder="Masukan Alamat" required />
+                               </div>
+                                  <button type="submit" id="Submit" name="submit" class="btn btn-primary">Edit Barang</button>
+                               </form>
+                            </div>
+                         </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+
+            {% endfor %}
+          </tbody>
+   </table>
+   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambahSuplier">Tambah Data</button>
+   </div>
+   
+<!-- Modal TAMBAH DATA -->
+<div class="container">
+  <div class="modal fade" id="tambahSuplier" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="container">
+                <div class="col-sm-5">
+                <h2 style="text-align: center; margin-top: 0;">Tambah Data Suplier</h2><br>
+                   <form action="{{ url_for('tambah_suplier') }}" method="post">
+                      <div class="form-group">
+                         <label>Nama Suplier:</label>
+                         <input type="text" name="nama" class="form-control" placeholder="Masukan Nama Suplier" />
+                      </div>
+                      <div class="form-group">
+                        <label>No. Tlp:</label>
+                        <input type="text" name="no_tlp" class="form-control" placeholder="Masukan No. Tlp" />
+                     </div>
+                     <div class="form-group">
+                      <label>Alamat:</label>
+                      <textarea type="text" name="alamat" class="form-control" placeholder="Masukan Alamat"></textarea>
+                   </div>
+                      <button type="submit" id="Submit" name="submit" class="btn btn-primary">Tambah Barang</button>
+                   </form>
+                </div>
+             </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+</body>
+</html>

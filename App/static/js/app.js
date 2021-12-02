@@ -1,0 +1,1 @@
+console.log('INI ADALAH JAVASCRIPT!!!');

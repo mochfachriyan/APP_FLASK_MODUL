@@ -1,0 +1,201 @@
+<html>
+<head>
+   <title>TRANSAKSI</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}"> -->
+   <!-- Show Modal -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+   
+  </head>
+<body>
+    {% extends 'publik/layout.html' %}
+
+    {% block title %}Barang{% endblock %}
+
+{% block content %}
+<h2>LIST BARANG</h2> 
+    <h1>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambahBarang">Tambah Data</button>
+    </h1>
+   <div class="container">
+     
+   <table width="10px" class="table table-bordered table-hover">
+      <thead>
+      <tr>
+          <th>ID Barang</th>
+          <th>Nama Barang</th>
+          <th>Harga</th>
+          <th>Nama Suplier</th>
+          <th>Status</th>
+          <th width="10%" colspan="2">Aksi</th>
+      </tr>
+      </thead>
+          <tbody>
+            {% for row in container %}
+            <tr>
+               <td>{{ row.0 }}</td>
+               <td>{{ row.1 }}</td>
+               <td>{{ row.2 }}</td>
+               <td>{{ row.6 }}</td>
+               <td>{{ row.4 }}</td>
+               <!-- BUTTON EDIT BARANG DATA TARGET LANGSUNG KE SHOW MODAL -->
+               <td><button type="button" class="btn btn-warning" data-toggle="modal" role="button" data-target="#editBarang{{ row.0 }}">Edit</button></td>
+               <!-- BUTTON HAPUS MENGGUNAKAN HREF KE ALAMAT ROUTE -->
+               <td><a href="/hapus-barang/{{row[0]}}" class="btn btn-danger" role="button">Hapus</a></td>
+            </tr>
+
+            <!-- MODAL EDIT DATA -->
+            <div class="container">
+              <!-- Modal -->
+              <div class="modal fade" id="editBarang{{ row.0 }}" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="container">
+                          <div class="col-sm-5">
+                          <h2>Ubah Data Barang</h2>
+                             <form action="{{ url_for('edit_barang') }}" method="post">
+                                <div class="form-group">
+                                   <input type="hidden" name="id_barang"  value="{{row[0]}}" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                   <label>Nama Barang:</label>
+                                   <input type="text" name="nama"  value="{{row[1]}}" class="form-control" placeholder="Masukan nama barang" required />
+                                </div>
+                                <div class="form-group">
+                                   <label>Harga:</label>
+                                   <input type="number" name="harga"  value="{{row[2]}}" class="form-control" placeholder="Masukan harga" required />
+                                </div>
+                                <div class="form-group">
+                                  <label>Nama Suplier:</label>
+                                  <select name= "id_suplier" class="form-control" placeholder="Pilih Nama Suplier" required>
+                                    <option value="{{row.0}}" selected>{{ row.6 }}</option> 
+                                  {% for i in suplier %}
+                                    <option value= "{{i[0]}}"> {{i[1]}}</option>
+                                  {% endfor %}
+                                </select>
+                                </div>
+                                <div class="form-group">
+                                  <label>Status:</label>
+                                  <select name= "status" class="form-control" placeholder="Pilih Status" required>
+                                    {% for data in status %}
+                                    <option value= "{{ data.status }}" selected> {{data.status}}</option>
+                                    {% endfor %}
+
+                                </select>
+                                </div>
+                                <button type="submit" id="Submit" name="submit" class="btn btn-primary">Edit Barang</button>
+                             </form>
+                          </div>
+                       </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </tbody>
+   </table>
+   </div>
+
+<!-- Modal TAMBAH DATA -->
+<div class="container">
+  <div class="modal fade" id="tambahBarang" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="container">
+                <div class="col-sm-5">
+                <h2 style="text-align: center; margin-top: 0;">Tambah Data Barang</h2><br>
+                    <form action="{{ url_for('tambah_barang') }}" method="post">
+                      <div class="form-group">
+                         <label>Nama Barang:</label>
+                         <input type="text" name="nama" class="form-control" placeholder="Masukan nama barang" required />
+                      </div>
+                      <div class="form-group">
+                        <label>Nama Suplier:</label> 
+                        <select name="id_suplier" class="form-control" placeholder="Pilih Nama Suplier" required>
+                          <option value="" selected>-Pilih-</option> 
+                          {% for i in suplier %}
+                            <option value= "{{i.0}}"> {{i.1}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group">
+                         <label>Harga:</label>
+                         <input type="number" name="harga" class="form-control" placeholder="Masukan harga" required />
+                      </div>
+                      <div class="form-group">
+                        <label>Status:</label>
+                        <select name="status" class="form-control" placeholder="Pilih Status" required>
+                          <option value="" selected>-Pilih-</option>
+                          {% for data in status %}
+                            <option value= "{{ data.status }}"> {{data.status}}</option>
+                          {% endfor %}
+                          
+                        </select>
+                     </div>
+                  
+                      <!-- SWITCH STATUS MENGGUNAKAN TOGGLE SWITCH -->
+                      <!-- <div class="form-group">
+                        <label>Satus:</label>
+                      </div>
+                      <div class="form-group custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input switch" id="status" name="status">
+                        <label class="custom-control-label status" for="status">  tidak aktif  </label>
+                        <script>
+                          $(document).ready(function() {
+                            $('.switch').click(function() {
+                              var current_status = $('.status').text();
+                              if (current_status === 'Tidak Aktif'){
+                                $('.status').html('Aktif');
+                              }
+                              else {
+                                $('.status').html('Tidak Aktif');
+                              }
+                            });
+                          });
+                        </script>
+                      </div> -->
+                      <button type="submit" id="Submit" name="submit" class="btn btn-primary">Tambah Barang</button>
+                   </form>
+                </div>
+             </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+</body>
+</html>
