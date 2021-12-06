@@ -29,7 +29,7 @@ def barang():
 def tambah_barang():
     if request.method == 'POST':
         # Create variables for easy access
-        nama_barang = request.form['nama_barang']
+        nama_barang = request.form['nama']
         id_suplier = request.form['id_suplier']
         harga = request.form['harga']
         status = request.form['status']

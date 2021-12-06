@@ -16,6 +16,9 @@
 
 {% block content %}
 <h2>LIST SUPLIER</h2>
+  <h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambahSuplier">Tambah Data</button>
+  </h1>
 
    <div class="container">
    <table width="10px" class="table table-bordered table-hover">
@@ -71,7 +74,7 @@
                                   <!-- <textarea type="text" name="alamat"  value="{{row[3]}}" class="form-control" placeholder="Masukan Alamat"></textarea> -->
                                   <input type="text" name="alamat"  value="{{row[3]}}" class="form-control" placeholder="Masukan Alamat" />
                                </div>
-                                  <button type="submit" id="Submit" name="submit" class="btn btn-primary">Edit Barang</button>
+                                  <button type="submit" id="Submit" name="submit" class="btn btn-primary">Edit Suplier</button>
                                </form>
                             </div>
                          </div>
@@ -87,7 +90,6 @@
             {% endfor %}
           </tbody>
    </table>
-   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambahSuplier">Tambah Data</button>
    </div>
    
 <!-- Modal TAMBAH DATA -->
