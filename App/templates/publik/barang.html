@@ -72,23 +72,26 @@
                                    <input type="text" name="nama"  value="{{row[1]}}" class="form-control" placeholder="Masukan nama barang" required />
                                 </div>
                                 <div class="form-group">
-                                   <label>Harga:</label>
+                                   <label>Harga:</label> 
                                    <input type="number" name="harga"  value="{{row[2]}}" class="form-control" placeholder="Masukan harga" required />
                                 </div>
                                 <div class="form-group">
-                                  <label>Nama Suplier:</label>
+                                  <label>Nama Suplier:</label> 
                                   <select name= "id_suplier" class="form-control" placeholder="Pilih Nama Suplier" required>
-                                    <option value="{{row.0}}" selected>{{ row.6 }}</option> 
-                                  {% for i in suplier %}
-                                    <option value= "{{i[0]}}"> {{i[1]}}</option>
-                                  {% endfor %}
+                                    <!-- Menambahkan dari table row lalu menmbahkan dari table suplier  -->
+                                    <option hidden value="{{row.5}}" selected>{{ row.6 }}</option>  
+                                    {% for i in suplier %}
+                                      <option value= "{{i[0]}}"> {{i[1]}}</option>
+                                    {% endfor %}
                                 </select>
                                 </div>
                                 <div class="form-group">
                                   <label>Status:</label>
                                   <select name= "status" class="form-control" placeholder="Pilih Status" required>
+                                    <!-- Menambahkan dari table row lalu menmbahkan dari table suplier  -->
+                                    <option hidden value= "{{ row[4] }}" selected> {{ row[4]}}</option>
                                     {% for data in status %}
-                                    <option value= "{{ data.status }}" selected> {{data.status}}</option>
+                                      <option value= "{{ data.status }}"> {{data.status}}</option>
                                     {% endfor %}
 
                                 </select>
@@ -128,7 +131,7 @@
                     <form action="{{ url_for('tambah_barang') }}" method="post">
                       <div class="form-group">
                          <label>Nama Barang:</label>
-                         <input type="text" name="nama" class="form-control" placeholder="Masukan nama barang" required />
+                         <input type="text" name="nama_barang" class="form-control" placeholder="Masukan nama barang" required />
                       </div>
                       <div class="form-group">
                         <label>Nama Suplier:</label> 

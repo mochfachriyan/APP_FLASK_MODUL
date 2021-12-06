@@ -5,20 +5,8 @@ import re
 from flask import Flask, render_template , url_for, redirect, request, session
 
 # ---- BARANG ---- #
-status_data=[{'id': '1', 'status' : 'Tersedia'},
-             {'id': '2','status' : 'Habis'}]
-
-# @app.route('/combo',  methods=['GET'])
-# def combo():
-#     cursor = mysql.connection.cursor()
-#     if request.method == 'POST':
-#       id_suplier = request.form['id_suplier']
-#       #Mengambil data suplier
-#       cursor.execute('SELECT * FROM suplier WHERE id_suplier <> %s', (id_suplier,))
-#       suplier = cursor.fetchall()
-#       return render_template('publik/barang.html', combo=suplier)
-#     else:
-#       return render_template('publik/barang.html')
+status=[{'status' : 'Tersedia'},
+        {'status' : 'Habis'}]
 
 # TAMPILAN AWAL BARANG (KONSEP COMBINE TABLE)
 @app.route('/barang',  methods=['GET'])
@@ -33,7 +21,7 @@ def barang():
     #Mengambil data suplier
     cursor.execute('SELECT * FROM suplier WHERE id_suplier')
     suplier = cursor.fetchall()
-    return render_template('publik/barang.html', container=results, suplier=suplier, status=status_data)
+    return render_template('publik/barang.html', container=results, suplier=suplier, status=status)
   
   
 # TAMBAH BARANG
@@ -41,7 +29,7 @@ def barang():
 def tambah_barang():
     if request.method == 'POST':
         # Create variables for easy access
-        nama = request.form['nama']
+        nama_barang = request.form['nama_barang']
         id_suplier = request.form['id_suplier']
         harga = request.form['harga']
         status = request.form['status']
@@ -49,9 +37,10 @@ def tambah_barang():
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         sql = "INSERT INTO BARANG (nama_barang, id_suplier ,harga, status) VALUES (%s, %s, %s, %s)"
-        value = (nama, id_suplier, harga, status)
+        value = (nama_barang, id_suplier, harga, status)
         cursor.execute(sql, value)
         mysql.connection.commit()
+        cursor.close()
         return redirect(url_for('barang'))
     else:
         # memakai modal di halaman yang sama dan belum memiliki notif
@@ -68,9 +57,10 @@ def edit_barang():
         id_suplier = request.form['id_suplier']
         status = request.form['status']
         sql = "UPDATE barang SET nama_barang=%s, harga=%s, id_suplier=%s, status=%s WHERE id_barang=%s"
-        val = (nama, harga, id_suplier, status, id_barang,)
+        val = (nama, harga, id_suplier, status, id_barang)
         cursor.execute(sql, val)
         mysql.connection.commit()
+        cursor.close()
         return redirect(url_for('barang'))
     else:
         return redirect(url_for('barang'))

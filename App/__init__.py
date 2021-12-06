@@ -3,8 +3,6 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 
-
-
 app = Flask(__name__) # --- app(variabel) yang sudah di deklarasi yang digunkan di route dan akan dijalankan di run.py --- #
 
 # Intialize MySQL
@@ -14,6 +12,7 @@ from App.publik import routes # --- import dari setiap route folder yang nantiny
 from App.admin import routes
 from App.publik.barang import routes
 from App.publik.suplier import routes
+from App.publik.pembelian import routes
 
 
 
