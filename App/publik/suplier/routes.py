@@ -2,6 +2,7 @@ from App import app   # --- import app(variable) dari file App/_init_.py yang su
 from App import mysql
 import MySQLdb.cursors
 import re
+from App.publik.suplier import suplierController
 from flask import Flask, render_template , url_for, redirect, request, session
 
 # ---- SUPLIER ---- #
@@ -59,5 +60,24 @@ def hapus_suplier(id_suplier):
     cursor.execute('DELETE FROM SUPLIER WHERE id_suplier=%s', (id_suplier,))
     mysql.connection.commit()
     return redirect(url_for('suplier'))
+  
+  
+  
+  
+# --- KODINGAN UNTUK ROUTE UNTUK MENAMPILKAN JSON --- #
+
+# --- HOME SUPLIER --- # 
+@app.route('/suplier-json', methods=['GET','POST'])   # [GET] untuk menampilkan data 
+def suplierJson():   
+  if request.method == 'POST':
+    return suplierController.tambahSuplier() # --- TAMBAH SUPLIER --- #
+  else:
+    return suplierController.tabelSuplier() # --- TABEL SUPLIER --- #
+
+# --- DETAIL SUPLIER --- # 
+@app.route('/suplier-json/<id_suplier>', methods=['GET'])
+def suplierJsonDetail(id_suplier):
+  return suplierController.detailSuplier(id_suplier) # --- DETAIL SUPLIER --- #
+  
   
   

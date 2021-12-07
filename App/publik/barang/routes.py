@@ -2,6 +2,7 @@ from App import app   # --- import app(variable) dari file App/_init_.py yang su
 from App import mysql
 import MySQLdb.cursors
 import re
+from App.publik.barang import barangController
 from flask import Flask, render_template , url_for, redirect, request, session
 
 # ---- BARANG ---- #
@@ -72,3 +73,42 @@ def hapus(id_barang):
     cursor.execute('DELETE FROM barang WHERE id_barang=%s', (id_barang,))
     mysql.connection.commit()
     return redirect(url_for('barang'))
+  
+  
+  
+# --- KODINGAN UNTUK ROUTE UNTUK MENAMPILKAN JSON --- #
+
+# --- HOME BARANG --- # 
+@app.route('/barang-json', methods=['GET','POST'])   # [GET] untuk menampilkan data 
+def barangJson():   
+  if request.method == 'POST':
+    return barangController.tambahBarang()  # --- TAMBAH BARANG --- #
+  else:
+    return barangController.tabelBarang() # --- DETAIL BARANG --- #
+  
+# --- BARANG --- # 
+@app.route('/barang-json/<id_barang>', methods=['GET','PUT','DELETE'])
+def barangJsonDetail(id_barang):
+  if request.method == 'GET':
+    return barangController.detailBarang(id_barang) # --- DETAIL BARANG --- #
+  elif request.method == 'PUT':
+    return barangController.editBarang(id_barang) # --- EDIT BARANG --- #
+  else:
+    return barangController.deleteBarang(id_barang) # --- HAPUS BARANG --- #
+
+
+
+
+
+
+
+
+
+
+
+
+# --------------------------- TES ------------------------------------- #  (BUAT EKSPERIMEN)
+@app.route('/tes/<id_suplier>', methods=['GET'])
+def CobaJson(id_suplier):
+  return barangController.cobaCoba(id_suplier)
+# --------------------------- TES ------------------------------------- #  (BUAT EKSPERIMEN)
