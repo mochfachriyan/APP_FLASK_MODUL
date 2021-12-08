@@ -84,7 +84,7 @@ def barangJson():
   if request.method == 'POST':
     return barangController.tambahBarang()  # --- TAMBAH BARANG --- #
   else:
-    return barangController.tabelBarang() # --- DETAIL BARANG --- #
+    return barangController.tabelBarang() # --- SEMUA BARANG --- #
   
 # --- BARANG --- # 
 @app.route('/barang-json/<id_barang>', methods=['GET','PUT','DELETE'])
@@ -96,19 +96,3 @@ def barangJsonDetail(id_barang):
   else:
     return barangController.deleteBarang(id_barang) # --- HAPUS BARANG --- #
 
-
-
-
-
-
-
-
-
-
-
-
-# --------------------------- TES ------------------------------------- #  (BUAT EKSPERIMEN)
-@app.route('/tes/<id_suplier>', methods=['GET'])
-def CobaJson(id_suplier):
-  return barangController.cobaCoba(id_suplier)
-# --------------------------- TES ------------------------------------- #  (BUAT EKSPERIMEN)

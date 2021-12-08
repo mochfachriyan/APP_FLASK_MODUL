@@ -19,51 +19,41 @@ def tabelBarang():   # Show all data suplier without condition
   except Exception as e: 
     print(e)
     
-# -------------------------------------------------------------------   (BUAT EKSPERIMEN)
-def cobaCoba(id_suplier):
-  try:
-    dataSuplier = suplierController.detailSuplier(id_suplier)
-    
-    if not dataSuplier:
-      return response.badRequest([], 'Data Suplier tidak ada !!')
-    
-    return response.success(dataSuplier, "success")
-  except Exception as e: 
-    print(e)
-# -------------------------------------------------------------------   (BUAT EKSPERIMEN)
-    
 # --- DETAIL BARANG BERDASARKAN ID AKAN MENAMPILKAN DETAIL SUPLIER --- #
-def detailBarang(id_barang):   # Show all data suplier without condition
+def detailBarang(id_barang):   # Show all data barang
   try:
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)     # akses ke database
     # SELECT QUERY DARI TABEL BARANG
     cursor.execute(''' SELECT id_barang,nama_barang,harga,id_suplier,status 
                        FROM barang 
-                       where id_barang = %s''', (id_barang)) 
+                       where id_barang = %s
+                  ''', (id_barang,)) 
     dataBarang = cursor.fetchone()               # Fetch data dari query Select
+    
     
     
     if not dataBarang:
       return response.badRequest([], 'Data karyawan tidak ada !!')
     
     dataSuplier = suplierController.detailSuplierBarang(id_barang)
-    data = singleDetailSuplier(dataBarang, dataSuplier)
+    dataJson = singleDetailSuplier(dataBarang, dataSuplier)
     
     
-    return response.success(data, "success")
+    return response.success(dataJson, "success")
   except Exception as e: 
     print(e)
     
     
-def singleDetailSuplier(barang, suplier):
-  data = {
+def singleDetailSuplier(barang, v_suplier):
+  dataJson = {
     'id_barang' : barang.get('id_barang'),
     'nama_barang': barang.get('nama_barang'),
     'harga' : barang.get('harga'),
     'status' : barang.get('status'),
-    'suplier' : suplier                       #------- NESTED JSON, Data Suplier Semua akan di tampung disini
+    # 'id_suplier' : barang.get('id_suplier'),
+    'suplier': v_suplier,                     #------- NESTED JSON, Data Suplier Semua akan di tampung disini
   }
-  return data
+  return dataJson
     
 
 
@@ -76,8 +66,8 @@ def tambahBarang():
     status = request.form.get('status')
     
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    sql = "INSERT INTO BARANG (nama_barang, id_suplier ,harga, status) VALUES (%s, %s, %s, %s)"
-    value = (nama_barang, id_suplier, harga, status)
+    sql = "INSERT INTO BARANG (nama_barang, harga, id_suplier, status) VALUES (%s, %s, %s, %s)"
+    value = (nama_barang, harga, id_suplier, status,)
     cursor.execute(sql, value)
     mysql.connection.commit() # Insert format tanggal menggunakan postman masih blm bisa
     cursor.close()
@@ -110,7 +100,7 @@ def editBarang(id_barang):
     
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     sql = "UPDATE barang SET nama_barang=%s, harga=%s, id_suplier=%s, status=%s WHERE id_barang=%s"
-    val = (nama_barang, harga, id_suplier, status, id_barang)
+    val = (nama_barang, harga, id_suplier, status, id_barang,)
     cursor.execute(sql, val)
     mysql.connection.commit()
     cursor.close()

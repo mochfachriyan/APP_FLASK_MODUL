@@ -1,9 +1,12 @@
+from MySQLdb import connect
 from App import app   # --- import app(variable) dari file App/_init_.py yang sudah di deklarasi --- #
 from App import mysql
 import MySQLdb.cursors
 import re
 from App.publik.suplier import suplierController
-from flask import Flask, render_template , url_for, redirect, request, session
+from flask import Flask, render_template , url_for, redirect, send_file, request, session
+import pandas as pd
+from io import BytesIO
 
 # ---- SUPLIER ---- #
 
@@ -62,8 +65,6 @@ def hapus_suplier(id_suplier):
     return redirect(url_for('suplier'))
   
   
-  
-  
 # --- KODINGAN UNTUK ROUTE UNTUK MENAMPILKAN JSON --- #
 
 # --- HOME SUPLIER --- # 
@@ -76,8 +77,79 @@ def suplierJson():
 
 # --- DETAIL SUPLIER --- # 
 @app.route('/suplier-json/<id_suplier>', methods=['GET'])
-def suplierJsonDetail(id_suplier):
-  return suplierController.detailSuplier(id_suplier) # --- DETAIL SUPLIER --- #
+def suplierJsonDetails  (id_suplier):
+  return suplierController.detailSupliers(id_suplier) # --- DETAIL SUPLIER --- #
   
   
   
+# --- TES --- # 
+@app.route('/tes/<id_barang>', methods=['GET'])
+def tes(id_barang):
+  return suplierController.detailSuplierBarang(id_barang) # --- DETAIL SUPLIER --- #
+
+
+
+# --- KODINGAN UNTUK ROUTE UNTUK EXPORT DAN IMPORT EXCEL --- #
+
+# ------------ EXPORT EXCEL ----------------#
+@app.route('/suplier-export-excel')
+def suplier_export_excel():
+  cursor = mysql.connect
+  df_1 = pd.read_sql_query('''  SELECT id_suplier, nama_suplier, no_telp, alamat 
+                                FROM suplier 
+                                ORDER BY id_suplier
+                           ''', cursor)
+  
+   #create a random Pandas dataframe
+    # df_1 = pd.DataFrame(np.random.randint(0,10,size=(10, 4)), columns=list('ABCD'))
+  
+  #create an output stream
+  output = BytesIO()
+  writer = pd.ExcelWriter(output, engine='xlsxwriter')
+  
+  #taken from the original question
+  df_1.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = "Sheet_1")
+  # df_1.to_excel(writer,startrow = len(df_1) + 4, merge_cells = False , sheet_name = "Sheet_1")                             
+
+  workbook = writer.book
+  worksheet = writer.sheets["Sheet_1"]
+  format = workbook.add_format()
+  format.set_bg_color('#3274d6')
+  worksheet.set_column(1,9,28)
+  
+  #the writer has done its job
+  writer.close()
+
+  #go back to the beginning of the stream
+  output.seek(0)
+
+  #finally return the file
+  return send_file(output, attachment_filename="testing.xlsx", as_attachment=True)
+
+
+# ------------ EXPORT CSV ---------------- #
+# @app.route('/suplier-export-csv')
+# def suplier_export_csv():
+#   try:
+#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+#     cursor.execute("SELECT id_suplier, nama_suplier, no_telp, alamat FROM suplier")
+#     output = io.StringIO()
+# 		writer = csv.writer(output)
+    
+    
+#   except Exception as e:
+#     print(e)
+
+
+
+# ------------ IMPORT CSV ----------------#
+@app.route('/suplier-import-csv')
+def suplier_import_csv():
+  return 'import'
+
+  
+# TODO kerjakan IMPORT CSV DULU
+# TODO kerjakan JSON PEMBELIAN CRUD JSON
+# TODO kerjakan IMPORT CSV DULU
+
+
