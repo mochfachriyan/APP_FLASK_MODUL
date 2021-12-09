@@ -4,9 +4,13 @@ from App import mysql
 import MySQLdb.cursors
 import re
 from App.publik.suplier import suplierController
-from flask import Flask, render_template , url_for, redirect, send_file, request, session
+from flask import Flask, render_template , url_for, redirect, send_file, request, session, Response
 import pandas as pd
+import io, csv
 from io import BytesIO
+
+import os 
+from os.path import join, dirname, realpath
 
 # ---- SUPLIER ---- #
 
@@ -127,29 +131,79 @@ def suplier_export_excel():
   return send_file(output, attachment_filename="testing.xlsx", as_attachment=True)
 
 
-# ------------ EXPORT CSV ---------------- #
-# @app.route('/suplier-export-csv')
-# def suplier_export_csv():
-#   try:
-#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#     cursor.execute("SELECT id_suplier, nama_suplier, no_telp, alamat FROM suplier")
-#     output = io.StringIO()
-# 		writer = csv.writer(output)
-    
-    
-#   except Exception as e:
-#     print(e)
+# ------------ EXPORT CSV ----------------#
+@app.route('/suplier-export-csv')
+def suplier_export_csv():
+  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  cursor.execute("SELECT id_suplier, nama_suplier, no_telp, alamat FROM suplier")
+  result = cursor.fetchall()
+
+  output = io.StringIO()
+  writer = csv.writer(output)
+  
+  line = ['id suplier, nama suplier, no_telp, alamat']
+  writer.writerow(line)
+
+  for row in result:
+    line = [str(row['id_suplier']) + ',' + row['nama_suplier'] + ',' + row['no_telp'] + ',' + row['alamat']]
+    writer.writerow(line)
+
+  output.seek(0)
+  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=suplier.csv"})
+
+
+
+
+
 
 
 
 # ------------ IMPORT CSV ----------------#
-@app.route('/suplier-import-csv')
-def suplier_import_csv():
-  return 'import'
+# Menuju Ke Upload Suplier
+@app.route('/suplier-upload')
+def uploadSuplier():
+  return render_template('publik/upload.html')
+
+# Upload folder  -----> Belum dipindah ke route / run.py agar file rapih 
+UPLOAD_FOLDER = 'App/static/files'
+app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER    
+    
+# Get the uploaded files
+@app.route('/suplier-upload-csv', methods=['POST'])
+def uploadFiles():
+      # get the uploaded file
+      uploaded_file = request.files['file']
+      if uploaded_file.filename != '':
+           file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+          # set the file path
+           uploaded_file.save(file_path)
+           parseCSV(file_path)
+          # save the file
+      return redirect(url_for('suplier'))
+    
+def parseCSV(filePath):
+      # CVS Column Names
+      col_names = ['nama_suplier','no_telp','alamat']
+      # Use Pandas to parse the CSV file
+      csvData = pd.read_csv(filePath,names=col_names, header=None)
+      # Loop through the Rows
+      for i,row in csvData.iterrows():
+             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+             sql = "INSERT INTO suplier (nama_suplier, no_telp, alamat) VALUES (%s, %s, %s)"
+             value = (row['nama_suplier'],row['no_telp'],row['alamat'])
+             cursor.execute(sql, value)
+             mysql.connection.commit()
+             print(i,row['nama_suplier'],row['no_telp'],row['alamat'])
+    
+
 
   
-# TODO kerjakan IMPORT CSV DULU
+  
+  
+  
+  
+# TODO kerjakan EXPORT CSV DULU (
 # TODO kerjakan JSON PEMBELIAN CRUD JSON
-# TODO kerjakan IMPORT CSV DULU
+# DONE kerjakan IMPORT CSV DULU
 
 

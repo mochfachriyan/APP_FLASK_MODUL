@@ -9,5 +9,6 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'db_belajarflask'
 
+
 if __name__ == '__main__':
     app.run(debug=True)

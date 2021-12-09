@@ -57,7 +57,7 @@ def singleDetailSuplier(barang, v_suplier):
     
 
 
-# ===================================== POST (INSERT)
+# --------------------------------------- POST (INSERT)
 def tambahBarang():    
   try:
     nama_barang = request.form.get('nama_barang')
@@ -76,7 +76,7 @@ def tambahBarang():
     print(e)
     
     
-# ===================================== PUT (UPDATE)
+# ------------------------------------ PUT (UPDATE)
 def editBarang(id_barang):   
   try:
     nama_barang = request.form.get('nama_barang') # get value dari postman saat PUT berlangsung
