@@ -95,105 +95,28 @@ def tes(id_barang):
 
 # --- KODINGAN UNTUK ROUTE UNTUK EXPORT DAN IMPORT EXCEL --- #
 
-# ------------ EXPORT EXCEL ----------------#
+# ------------ EXPORT EXCEL -------------- #
 @app.route('/suplier-export-excel')
 def suplier_export_excel():
-  cursor = mysql.connect
-  df_1 = pd.read_sql_query('''  SELECT id_suplier, nama_suplier, no_telp, alamat 
-                                FROM suplier 
-                                ORDER BY id_suplier
-                           ''', cursor)
-  
-   #create a random Pandas dataframe
-    # df_1 = pd.DataFrame(np.random.randint(0,10,size=(10, 4)), columns=list('ABCD'))
-  
-  #create an output stream
-  output = BytesIO()
-  writer = pd.ExcelWriter(output, engine='xlsxwriter')
-  
-  #taken from the original question
-  df_1.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = "Sheet_1")
-  # df_1.to_excel(writer,startrow = len(df_1) + 4, merge_cells = False , sheet_name = "Sheet_1")                             
-
-  workbook = writer.book
-  worksheet = writer.sheets["Sheet_1"]
-  format = workbook.add_format()
-  format.set_bg_color('#3274d6')
-  worksheet.set_column(1,9,28)
-  
-  #the writer has done its job
-  writer.close()
-
-  #go back to the beginning of the stream
-  output.seek(0)
-
-  #finally return the file
-  return send_file(output, attachment_filename="testing.xlsx", as_attachment=True)
+  return suplierController.suplierExportExcel()
 
 
-# ------------ EXPORT CSV ----------------#
+# ------------ EXPORT CSV ---------------- #
 @app.route('/suplier-export-csv')
 def suplier_export_csv():
-  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-  cursor.execute("SELECT id_suplier, nama_suplier, no_telp, alamat FROM suplier")
-  result = cursor.fetchall()
-
-  output = io.StringIO()
-  writer = csv.writer(output)
-  
-  line = ['id suplier, nama suplier, no_telp, alamat']
-  writer.writerow(line)
-
-  for row in result:
-    line = [str(row['id_suplier']) + ',' + row['nama_suplier'] + ',' + row['no_telp'] + ',' + row['alamat']]
-    writer.writerow(line)
-
-  output.seek(0)
-  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=suplier.csv"})
+  return suplierController.suplierExportCsv()
 
 
-
-
-
-
-
-
-# ------------ IMPORT CSV ----------------#
+# ------------ IMPORT CSV ---------------- #
 # Menuju Ke Upload Suplier
-@app.route('/suplier-upload')
-def uploadSuplier():
+@app.route('/suplier-upload-csv')
+def upload_suplier():
   return render_template('publik/upload.html')
 
-# Upload folder  -----> Belum dipindah ke route / run.py agar file rapih 
-UPLOAD_FOLDER = 'App/static/files'
-app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER    
-    
-# Get the uploaded files
-@app.route('/suplier-upload-csv', methods=['POST'])
-def uploadFiles():
-      # get the uploaded file
-      uploaded_file = request.files['file']
-      if uploaded_file.filename != '':
-           file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
-          # set the file path
-           uploaded_file.save(file_path)
-           parseCSV(file_path)
-          # save the file
-      return redirect(url_for('suplier'))
-    
-def parseCSV(filePath):
-      # CVS Column Names
-      col_names = ['nama_suplier','no_telp','alamat']
-      # Use Pandas to parse the CSV file
-      csvData = pd.read_csv(filePath,names=col_names, header=None)
-      # Loop through the Rows
-      for i,row in csvData.iterrows():
-             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-             sql = "INSERT INTO suplier (nama_suplier, no_telp, alamat) VALUES (%s, %s, %s)"
-             value = (row['nama_suplier'],row['no_telp'],row['alamat'])
-             cursor.execute(sql, value)
-             mysql.connection.commit()
-             print(i,row['nama_suplier'],row['no_telp'],row['alamat'])
+# ------------ IMPORT CSV ---------------- #
+@app.route('/suplier-save-csv', methods=['POST'])
+def save_files_csv():
+  return suplierController.uploadFilesCsv()
     
 
 
@@ -202,7 +125,7 @@ def parseCSV(filePath):
   
   
   
-# TODO kerjakan EXPORT CSV DULU (
+# DONE kerjakan EXPORT CSV DULU (
 # TODO kerjakan JSON PEMBELIAN CRUD JSON
 # DONE kerjakan IMPORT CSV DULU
 

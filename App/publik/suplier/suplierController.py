@@ -2,7 +2,14 @@ from flask.helpers import url_for
 from werkzeug.utils import redirect
 from App import app, response, mysql
 import MySQLdb.cursors
-from flask import request, jsonify
+from flask import request, jsonify, send_file, Response
+
+import pandas as pd
+import io, csv
+from io import BytesIO
+
+import os 
+from os.path import join, dirname, realpath
 
 
 # ===================================== GET ALL DATA (READ)
@@ -96,11 +103,94 @@ def tambahSuplier():
     return response.success('', 'Sukses menambahkan data Suplier')
   except Exception as e:
     print(e)
+    
+    
+    
+    
+# -------------------------------------- IMPORT EXPORT EXCEL , CSV -------------------------------------------------------- #
+
+# --- EXPORT EXCEL --- #
+def suplierExportExcel():
+  cursor = mysql.connect
+  df_1 = pd.read_sql_query('''  SELECT id_suplier, nama_suplier, no_telp, alamat 
+                                FROM suplier 
+                                ORDER BY id_suplier
+                           ''', cursor)
+  
+  #create a random Pandas dataframe
+    # df_1 = pd.DataFrame(np.random.randint(0,10,size=(10, 4)), columns=list('ABCD'))
+  
+  #create an output stream
+  output = BytesIO()
+  writer = pd.ExcelWriter(output, engine='xlsxwriter')
+  
+  #taken from the original question
+  df_1.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = "Sheet_1")
+  # df_1.to_excel(writer,startrow = len(df_1) + 4, merge_cells = False , sheet_name = "Sheet_1")                             
+
+  workbook = writer.book
+  worksheet = writer.sheets["Sheet_1"]
+  format = workbook.add_format()
+  format.set_bg_color('#3274d6')
+  worksheet.set_column(1,9,28)
+  
+  #the writer has done its job
+  writer.close()
+
+  #go back to the beginning of the stream
+  output.seek(0)
+
+  #finally return the file
+  return send_file(output, attachment_filename="Suplier Excel.xlsx", as_attachment=True)
 
 
 
+# --- EXPORT CSV --- #
+def suplierExportCsv():
+  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  cursor.execute("SELECT id_suplier, nama_suplier, no_telp, alamat FROM suplier")
+  result = cursor.fetchall()
+
+  output = io.StringIO()
+  writer = csv.writer(output)
+  
+  line = ['id suplier, nama suplier, no_telp, alamat']
+  writer.writerow(line)
+
+  for row in result:
+    line = [str(row['id_suplier']) + ',' + row['nama_suplier'] + ',' + row['no_telp'] + ',' + row['alamat']]
+    writer.writerow(line)
+
+  output.seek(0)
+  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=suplier CSV.csv"})
 
 
+# --- IMPORT CSV --- #
+def uploadFilesCsv():
+  # get the uploaded file
+  uploaded_file = request.files['file']
+  if uploaded_file.filename != '':
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+    # set the file path
+    uploaded_file.save(file_path)
+    parseCSV(file_path)
+    # save the file
+  return redirect(url_for('suplier'))
+    
+def parseCSV(filePath):
+  # CVS Column Names
+  col_names = ['nama_suplier','no_telp','alamat']
+  # Use Pandas to parse the CSV file
+  csvData = pd.read_csv(filePath,names=col_names, header=None)
+  # Loop through the Rows
+  for i,row in csvData.iterrows():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    sql = "INSERT INTO suplier (nama_suplier, no_telp, alamat) VALUES (%s, %s, %s)"
+    value = (row['nama_suplier'],row['no_telp'],row['alamat'])
+    cursor.execute(sql, value)
+    mysql.connection.commit()
+    print(i,row['nama_suplier'],row['no_telp'],row['alamat'])
+    
 
   
  
