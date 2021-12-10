@@ -11,6 +11,8 @@ from io import BytesIO
 import os 
 from os.path import join, dirname, realpath
 
+import xlrd
+
 
 # ===================================== GET ALL DATA (READ)
 def tabelSuplier():   # Show all data suplier without condition
@@ -191,7 +193,34 @@ def parseCSV(filePath):
     mysql.connection.commit()
     print(i,row['nama_suplier'],row['no_telp'],row['alamat'])
     
+    
+# --- IMPORT EXCEL --- #
+def uploadFilesExcel():
+  # get the uploaded file
+  uploaded_file = request.files['file']
+  if uploaded_file.filename != '':
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+    # set the file path
+    uploaded_file.save(file_path)
+    parseEXCEL(file_path)
+    # save the file
+  return redirect(url_for('suplier'))
 
+def parseEXCEL(filePath):
+  book = xlrd.open_workbook(filePath)
+  # sheet = book.sheet_by_name('suplier')
+  sheet = book.sheet_by_index(0)
   
- 
+  cursor = mysql.connection.cursor()
+  query = 'INSERT INTO suplier (nama_suplier, no_telp, alamat) VALUES (%s, %s, %s)'
   
+  for row in range(1, sheet.nrows):
+        nama     = sheet.cell(row,0).value
+        tlp      = sheet.cell(row,1).value
+        alamat   = sheet.cell(row,2).value
+        print(nama)
+        values = (nama, tlp, alamat)
+        cursor.execute(query, values)
+        mysql.connection.commit()
+        
+  cursor.close()

@@ -110,16 +110,23 @@ def suplier_export_csv():
 # ------------ IMPORT CSV ---------------- #
 # Menuju Ke Upload Suplier
 @app.route('/suplier-upload-csv')
-def upload_suplier():
-  return render_template('publik/upload.html')
+def upload_suplier_csv():
+  return render_template('publik/upload/uploadSuplierCsv.html')
 
-# ------------ IMPORT CSV ---------------- #
 @app.route('/suplier-save-csv', methods=['POST'])
 def save_files_csv():
   return suplierController.uploadFilesCsv()
     
+# ------------ IMPORT EXCEL ---------------- #
+@app.route('/suplier-upload-excel')
+def upload_suplier_excel():
+  return render_template('publik/upload/uploadSuplierExcel.html')
 
-
+@app.route('/suplier-save-excel', methods=['POST'])
+def save_files_excel():
+  return suplierController.uploadFilesExcel()
+  
+    
   
   
   
