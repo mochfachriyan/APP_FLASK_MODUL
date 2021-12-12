@@ -11,8 +11,5 @@ mysql = MySQL(app)
 from App.publik import routes # --- import dari setiap route folder yang nantinya akan di jalankan ke run.py --- #
 from App.admin import routes
 from App.publik.barang import routes
-from App.templates.publik.upload import routes
+from App.publik.suplier import routes
 from App.publik.pembelian import routes
-
-
-
