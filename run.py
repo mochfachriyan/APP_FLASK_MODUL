@@ -14,4 +14,5 @@ UPLOAD_FOLDER = 'App/static/files'
 app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER   
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)    #user tidak boleh lihat debug
+                           #harus dipisah sendiri, user lihatin try,except

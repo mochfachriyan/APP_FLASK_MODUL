@@ -7,7 +7,7 @@ from flask import request, jsonify, send_file, Response
 
 from App.publik.suplier import suplierController
 
-import pandas as pd
+import pandas as pd     #gunakan numpy , pandas lebih berat 
 import io, csv
 from io import BytesIO
 
@@ -17,7 +17,7 @@ from os.path import join, dirname, realpath
 import xlrd
 
 
-# ===================================== GET ALL DATA (READ)
+# -----------------------------------------GET ALL DATA (READ)
 def tabelBarang():   # Show all data suplier without condition
   try:
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)     # akses ke database
@@ -119,7 +119,7 @@ def editBarang(id_barang):
     print(e)
     
     
-# ===================================== PUT (Delete)
+# ----------------------------------------- PUT (Delete)
 def deleteBarang(id_barang):
   try:
     dataBarang = detailBarang(id_barang)
@@ -171,7 +171,7 @@ def barangExportExcel():
   output.seek(0)
 
   #finally return the file
-  return send_file(output, attachment_filename="testing_barang.xlsx", as_attachment=True)  
+  return send_file(output, attachment_filename="barang Excel.xlsx", as_attachment=True)  
 
 
 
@@ -194,7 +194,7 @@ def barangExportCsv():
     writer.writerow(line)
 
   output.seek(0)
-  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=barang.csv"})
+  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=barang CSV.csv"})
 
 
 # --- IMPORT CSV --- #

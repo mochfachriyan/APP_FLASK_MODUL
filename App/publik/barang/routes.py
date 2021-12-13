@@ -112,7 +112,7 @@ def barang_export_excel():
 # ------------ EXPORT CSV ----------------#
 @app.route('/barang-export-csv')
 def barang_export_csv():
-  return barangController.barangExportExcel()
+  return barangController.barangExportCsv()
 
 
 # ------------ IMPORT CSV ---------------- #
