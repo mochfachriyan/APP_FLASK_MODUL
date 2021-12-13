@@ -176,7 +176,7 @@ def barangExportExcel():
 
 
 # --- EXPORT CSV --- #
-def BarangExportCsv():
+def barangExportCsv():
   cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
   cursor.execute('''  SELECT id_barang, nama_barang, harga, id_suplier, status 
                       FROM barang 
@@ -195,3 +195,62 @@ def BarangExportCsv():
 
   output.seek(0)
   return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=barang.csv"})
+
+
+# --- IMPORT CSV --- #
+def uploadBarangCsv():
+  # get the uploaded file
+  uploaded_file = request.files['file']
+  if uploaded_file.filename != '':
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+    # set the file path
+    uploaded_file.save(file_path)
+    parseCSV(file_path)
+    # save the file
+  return redirect(url_for('barang'))
+    
+def parseCSV(filePath):
+  # CVS Column Names
+  col_names = ['nama_barang','harga','id_suplier', 'status']
+  # Use Pandas to parse the CSV file
+  csvData = pd.read_csv(filePath,names=col_names, header=None)
+  # Loop through the Rows
+  for i,row in csvData.iterrows():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    sql = "INSERT INTO BARANG (nama_barang, harga ,id_suplier, status) VALUES (%s, %s, %s, %s)"
+    value = (row['nama_barang'],row['harga'],row['id_suplier'],row['status'])
+    cursor.execute(sql, value)
+    mysql.connection.commit()
+    print(i,row['nama_barang'],row['harga'],row['id_suplier'],row['status'])
+    
+    
+
+# --- IMPORT EXCEL --- #
+def uploadBarangExcel():
+  # get the uploaded file
+  uploaded_file = request.files['file']
+  if uploaded_file.filename != '':
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+    # set the file path
+    uploaded_file.save(file_path)
+    parseEXCEL(file_path)
+    # save the file
+  return redirect(url_for('barang'))
+
+def parseEXCEL(filePath):
+  book = xlrd.open_workbook(filePath)
+  # sheet = book.sheet_by_name('suplier')
+  sheet = book.sheet_by_index(0)
+  
+  cursor = mysql.connection.cursor()
+  query = 'INSERT INTO BARANG (nama_barang, harga, id_suplier, status) VALUES (%s, %s, %s, %s)'
+  
+  for row in range(1, sheet.nrows):
+        nama_barang     = sheet.cell(row,0).value
+        harga      = sheet.cell(row,1).value
+        id_suplier   = sheet.cell(row,2).value
+        status   = sheet.cell(row,3).value
+        values = (nama_barang, harga, id_suplier, status)
+        cursor.execute(query, values)
+        mysql.connection.commit()
+  cursor.close()

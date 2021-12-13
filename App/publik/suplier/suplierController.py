@@ -168,7 +168,7 @@ def suplierExportCsv():
 
 
 # --- IMPORT CSV --- #
-def uploadFilesCsv():
+def uploadSuplierCsv():
   # get the uploaded file
   uploaded_file = request.files['file']
   if uploaded_file.filename != '':
@@ -195,7 +195,7 @@ def parseCSV(filePath):
     
     
 # --- IMPORT EXCEL --- #
-def uploadFilesExcel():
+def uploadSuplierExcel():
   # get the uploaded file
   uploaded_file = request.files['file']
   if uploaded_file.filename != '':
@@ -218,7 +218,6 @@ def parseEXCEL(filePath):
         nama     = sheet.cell(row,0).value
         tlp      = sheet.cell(row,1).value
         alamat   = sheet.cell(row,2).value
-        print(nama)
         values = (nama, tlp, alamat)
         cursor.execute(query, values)
         mysql.connection.commit()

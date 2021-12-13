@@ -19,6 +19,7 @@ def barang():
     cursor.execute(''' SELECT * 
                        FROM barang, suplier
                        where barang.id_suplier = suplier.id_suplier
+                       ORDER BY barang.id_barang
                   ''')
     results = cursor.fetchall()
 
@@ -111,13 +112,25 @@ def barang_export_excel():
 # ------------ EXPORT CSV ----------------#
 @app.route('/barang-export-csv')
 def barang_export_csv():
-  return barangController.BarangExportCsv()
+  return barangController.barangExportExcel()
 
-# # ------------ IMPORT EXCEL ---------------- #
-# @app.route('/barang-upload-excel')
-# def upload_suplier_excel():
-#   return render_template('publik/upload/uploadBarangrExcel.html')
 
-# @app.route('/barang-save-excel', methods=['POST'])
-# def save_files_excel():
-#   return barangController.uploadFilesExcel()
+# ------------ IMPORT CSV ---------------- #
+# Menuju Ke Upload Suplier
+@app.route('/barang-upload-csv')
+def upload_barang_csv():
+  return render_template('publik/upload/uploadbarangCsv.html')
+
+@app.route('/barang-save-csv', methods=['POST'])
+def save_barang_csv():
+  return barangController.uploadBarangCsv()
+
+
+# ------------ IMPORT EXCEL ---------------- #
+@app.route('/barang-upload-excel')
+def upload_barang_excel():
+  return render_template('publik/upload/uploadBarangExcel.html')
+
+@app.route('/barang-save-excel', methods=['POST'])
+def save_barang_excel():
+  return barangController.uploadBarangExcel()
