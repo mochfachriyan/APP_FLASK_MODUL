@@ -105,57 +105,19 @@ def barangJsonDetail(id_barang):
 # ------------ EXPORT EXCEL ----------------#
 @app.route('/barang-export-excel')
 def barang_export_excel():
-  cursor = mysql.connect
-  df_1 = pd.read_sql_query('''  SELECT id_barang, nama_barang, harga, id_suplier, status 
-                                FROM barang 
-                                ORDER BY id_barang
-                           ''', cursor)
-  
-   #create a random Pandas dataframe
-    # df_1 = pd.DataFrame(np.random.randint(0,10,size=(10, 4)), columns=list('ABCD'))
-  
-  #create an output stream
-  output = BytesIO()
-  writer = pd.ExcelWriter(output, engine='xlsxwriter')
-  
-  #taken from the original question
-  df_1.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = "Sheet_1")
-  # df_1.to_excel(writer,startrow = len(df_1) + 4, merge_cells = False , sheet_name = "Sheet_1")                             
-
-  workbook = writer.book
-  worksheet = writer.sheets["Sheet_1"]
-  format = workbook.add_format()
-  format.set_bg_color('#3274d6')
-  worksheet.set_column(1,9,28)
-  
-  #the writer has done its job
-  writer.close()
-
-  #go back to the beginning of the stream
-  output.seek(0)
-
-  #finally return the file
-  return send_file(output, attachment_filename="testing_barang.xlsx", as_attachment=True)
+  return barangController.barangExportExcel()
 
 
 # ------------ EXPORT CSV ----------------#
 @app.route('/barang-export-csv')
 def barang_export_csv():
-  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-  cursor.execute('''  SELECT id_barang, nama_barang, harga, id_suplier, status 
-                      FROM barang 
-                      ORDER BY id_barang''')
-  result = cursor.fetchall()
+  return barangController.BarangExportCsv()
 
-  output = io.StringIO()
-  writer = csv.writer(output)
-  
-  line = ['id barang, nama barang, harga, id_suplier, status']
-  writer.writerow(line)
+# # ------------ IMPORT EXCEL ---------------- #
+# @app.route('/barang-upload-excel')
+# def upload_suplier_excel():
+#   return render_template('publik/upload/uploadBarangrExcel.html')
 
-  for row in result:
-    line = [str(row['id_barang']) + ',' + row['nama_barang'] + ',' + str(row['harga']) + ',' + str(row['id_suplier']) + ',' + row['status']]
-    writer.writerow(line)
-
-  output.seek(0)
-  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=barang.csv"})
+# @app.route('/barang-save-excel', methods=['POST'])
+# def save_files_excel():
+#   return barangController.uploadFilesExcel()

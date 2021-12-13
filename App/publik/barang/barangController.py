@@ -3,9 +3,19 @@ from flask.helpers import url_for
 from werkzeug.utils import redirect
 from App import app, response, mysql
 import MySQLdb.cursors
-from flask import request, jsonify
+from flask import request, jsonify, send_file, Response
 
 from App.publik.suplier import suplierController
+
+import pandas as pd
+import io, csv
+from io import BytesIO
+
+import os 
+from os.path import join, dirname, realpath
+
+import xlrd
+
 
 # ===================================== GET ALL DATA (READ)
 def tabelBarang():   # Show all data suplier without condition
@@ -124,3 +134,64 @@ def deleteBarang(id_barang):
       return response.success(id_barang, "Data berhasil dihapus !!!")
   except Exception as e:
     print(e)
+    
+    
+    
+# -------------------------------------- IMPORT EXPORT EXCEL , CSV -------------------------------------------------------- #
+  
+# --- EXPORT EXCEL --- #
+def barangExportExcel():
+  cursor = mysql.connect
+  df_1 = pd.read_sql_query('''  SELECT id_barang, nama_barang, harga, id_suplier, status 
+                                FROM barang 
+                                ORDER BY id_barang
+                           ''', cursor)
+  
+   #create a random Pandas dataframe
+    # df_1 = pd.DataFrame(np.random.randint(0,10,size=(10, 4)), columns=list('ABCD'))
+  
+  #create an output stream
+  output = BytesIO()
+  writer = pd.ExcelWriter(output, engine='xlsxwriter')
+  
+  #taken from the original question
+  df_1.to_excel(writer, startrow = 0, merge_cells = False, sheet_name = "Sheet_1")
+  # df_1.to_excel(writer,startrow = len(df_1) + 4, merge_cells = False , sheet_name = "Sheet_1")                             
+
+  workbook = writer.book
+  worksheet = writer.sheets["Sheet_1"]
+  format = workbook.add_format()
+  format.set_bg_color('#3274d6')
+  worksheet.set_column(1,9,28)
+  
+  #the writer has done its job
+  writer.close()
+
+  #go back to the beginning of the stream
+  output.seek(0)
+
+  #finally return the file
+  return send_file(output, attachment_filename="testing_barang.xlsx", as_attachment=True)  
+
+
+
+# --- EXPORT CSV --- #
+def BarangExportCsv():
+  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  cursor.execute('''  SELECT id_barang, nama_barang, harga, id_suplier, status 
+                      FROM barang 
+                      ORDER BY id_barang''')
+  result = cursor.fetchall()
+
+  output = io.StringIO()
+  writer = csv.writer(output)
+  
+  line = ['id barang, nama barang, harga, id_suplier, status']
+  writer.writerow(line)
+
+  for row in result:
+    line = [str(row['id_barang']) + ',' + row['nama_barang'] + ',' + str(row['harga']) + ',' + str(row['id_suplier']) + ',' + row['status']]
+    writer.writerow(line)
+
+  output.seek(0)
+  return Response(output, mimetype="text/csv", headers={"Content-Disposition":"attachment;filename=barang.csv"})
